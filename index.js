@@ -10,6 +10,13 @@ function Game() {
   this.potions = [];
 }
 
+Game.prototype.init = function () {
+  this.generateEmptyMap();
+  this.placeRoomsAndCorridors();
+  this.placeItemsAndCharacters();
+  this.render();
+};
+
 // Заполнить карту стенами
 Game.prototype.generateEmptyMap = function () {
   for (let y = 0; y < this.HEIGHT; y++) {
