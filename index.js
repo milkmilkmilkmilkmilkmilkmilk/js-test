@@ -16,6 +16,17 @@ Game.prototype.init = function () {
   this.placeItemsAndCharacters();
   this.render();
   this.bindEvents();
+  this.startEnemyAI();
+};
+
+Game.prototype.startEnemyAI = function () {
+  const self = this;
+  setInterval(function () {
+    if (self.hero.health > 0) {
+      self.enemyTurn();
+      self.render();
+    }
+  }, 500);
 };
 
 // Заполнить карту стенами
@@ -213,9 +224,26 @@ Game.prototype.render = function () {
   }
 };
 
-//функция для случайного числа
+// Функция для случайного числа
 Game.prototype.getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// Проверка перемещения врага
+Game.prototype.canEnemyMoveTo = function (x, y) {
+  if (x < 0 || x >= this.WIDTH || y < 0 || y >= this.HEIGHT) return false;
+
+  if (this.map[y][x] !== "E") return false;
+
+  // Проверка: нет ли врага на клетке
+  for (let other of this.enemies) {
+    if (other.x === x && other.y === y && other.health > 0) return false;
+  }
+
+  // Герой — цель, но не клетка для прохода
+  if (this.hero && this.hero.x === x && this.hero.y === y) return false;
+
+  return true;
 };
 
 // Обработка клавиш WASD и пробела
@@ -238,9 +266,72 @@ Game.prototype.moveHero = function (dx, dy) {
 
   if (newX < 0 || newX >= this.WIDTH || newY < 0 || newY >= this.HEIGHT) return;
 
-  if (this.map[newY][newX] === "W") return; // стена
+  if (this.map[newY][newX] === "W") return;
 
   this.hero.x = newX;
   this.hero.y = newY;
   this.render();
+};
+
+// Атака врагов в соседних клетках
+Game.prototype.attackNearbyEnemies = function () {
+  var heroX = this.hero.x;
+  var heroY = this.hero.y;
+  var attackRange = 1;
+  var attacked = false;
+
+  for (let enemy of this.enemies) {
+    if (
+      Math.abs(enemy.x - heroX) <= attackRange &&
+      Math.abs(enemy.y - heroY) <= attackRange &&
+      enemy.health > 0
+    ) {
+      enemy.health -= this.hero.attack;
+      if (enemy.health < 0) enemy.health = 0;
+      attacked = true;
+    }
+  }
+
+  if (attacked) {
+    this.render();
+  }
+};
+
+// Атака врагов
+Game.prototype.enemyTurn = function () {
+  for (let enemy of this.enemies) {
+    if (enemy.health <= 0) continue;
+
+    let dx = this.hero.x - enemy.x;
+    let dy = this.hero.y - enemy.y;
+
+    // Атака, если рядом
+    if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 && dx === 0)) {
+      this.hero.health -= enemy.attack;
+      if (this.hero.health <= 0) {
+        this.hero.health = 0;
+        alert("Вы погибли!");
+        return;
+      }
+      continue;
+    }
+
+    // Простое движение к герою
+    let moveX = 0;
+    let moveY = 0;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      moveX = dx > 0 ? 1 : -1;
+    } else if (dy !== 0) {
+      moveY = dy > 0 ? 1 : -1;
+    }
+
+    let newX = enemy.x + moveX;
+    let newY = enemy.y + moveY;
+
+    if (this.canEnemyMoveTo(newX, newY)) {
+      enemy.x = newX;
+      enemy.y = newY;
+    }
+  }
 };
