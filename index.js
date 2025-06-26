@@ -103,3 +103,41 @@ Game.prototype.isOccupied = function (x, y) {
 
   return false;
 };
+
+// Разместить героя, врагов и предметы
+Game.prototype.placeItemsAndCharacters = function () {
+  // Герой
+  let heroPos = this.findEmptyCell();
+  this.hero = {
+    x: heroPos.x,
+    y: heroPos.y,
+    health: 100,
+    attack: 10,
+  };
+
+  // Враги
+  this.enemies = [];
+  for (let i = 0; i < 10; i++) {
+    let pos = this.findEmptyCell();
+    this.enemies.push({
+      x: pos.x,
+      y: pos.y,
+      health: 30,
+      attack: 5,
+    });
+  }
+
+  // Мечи
+  this.swords = [];
+  for (let i = 0; i < 2; i++) {
+    let pos = this.findEmptyCell();
+    this.swords.push({ x: pos.x, y: pos.y });
+  }
+
+  // Зелья
+  this.potions = [];
+  for (let i = 0; i < 10; i++) {
+    let pos = this.findEmptyCell();
+    this.potions.push({ x: pos.x, y: pos.y });
+  }
+};
