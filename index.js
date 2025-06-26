@@ -73,3 +73,33 @@ Game.prototype.placeRoomsAndCorridors = function () {
     }
   }
 };
+
+// Найти пустую клетку для размещения сущности
+Game.prototype.findEmptyCell = function () {
+  while (true) {
+    let x = this.getRandomInt(0, this.WIDTH - 1);
+    let y = this.getRandomInt(0, this.HEIGHT - 1);
+    if (this.map[y][x] === "E" && !this.isOccupied(x, y)) {
+      return { x, y };
+    }
+  }
+};
+
+// Проверка, занята ли клетка героями, врагами, предметами
+Game.prototype.isOccupied = function (x, y) {
+  if (this.hero && this.hero.x === x && this.hero.y === y) return true;
+
+  for (let enemy of this.enemies) {
+    if (enemy.x === x && enemy.y === y) return true;
+  }
+
+  for (let sword of this.swords) {
+    if (sword.x === x && sword.y === y) return true;
+  }
+
+  for (let potion of this.potions) {
+    if (potion.x === x && potion.y === y) return true;
+  }
+
+  return false;
+};
