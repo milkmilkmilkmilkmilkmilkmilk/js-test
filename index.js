@@ -15,6 +15,7 @@ Game.prototype.init = function () {
   this.placeRoomsAndCorridors();
   this.placeItemsAndCharacters();
   this.render();
+  this.bindEvents();
 };
 
 // Заполнить карту стенами
@@ -215,4 +216,31 @@ Game.prototype.render = function () {
 //функция для случайного числа
 Game.prototype.getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// Обработка клавиш WASD и пробела
+Game.prototype.bindEvents = function () {
+  var self = this;
+  $(document).on("keydown", function (e) {
+    var code = e.keyCode;
+    if (code === 87) self.moveHero(0, -1);
+    else if (code === 65) self.moveHero(-1, 0);
+    else if (code === 83) self.moveHero(0, 1);
+    else if (code === 68) self.moveHero(1, 0);
+    else if (code === 32) self.attackNearbyEnemies();
+  });
+};
+
+// Перемещение героя (с проверкой стен)
+Game.prototype.moveHero = function (dx, dy) {
+  var newX = this.hero.x + dx;
+  var newY = this.hero.y + dy;
+
+  if (newX < 0 || newX >= this.WIDTH || newY < 0 || newY >= this.HEIGHT) return;
+
+  if (this.map[newY][newX] === "W") return; // стена
+
+  this.hero.x = newX;
+  this.hero.y = newY;
+  this.render();
 };
