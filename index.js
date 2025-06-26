@@ -10,13 +10,6 @@ function Game() {
   this.potions = [];
 }
 
-Game.prototype.init = function () {
-  this.generateEmptyMap();
-  this.placeRoomsAndCorridors();
-  this.placeItemsAndCharacters();
-  this.render();
-};
-
 // Заполнить карту стенами
 Game.prototype.generateEmptyMap = function () {
   for (let y = 0; y < this.HEIGHT; y++) {
@@ -147,4 +140,11 @@ Game.prototype.placeItemsAndCharacters = function () {
     let pos = this.findEmptyCell();
     this.potions.push({ x: pos.x, y: pos.y });
   }
+};
+
+Game.prototype.init = function () {
+  this.generateEmptyMap();
+  this.placeRoomsAndCorridors();
+  this.placeItemsAndCharacters();
+  this.render();
 };
