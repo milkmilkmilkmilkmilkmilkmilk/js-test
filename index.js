@@ -10,6 +10,13 @@ function Game() {
   this.potions = [];
 }
 
+Game.prototype.init = function () {
+  this.generateEmptyMap();
+  this.placeRoomsAndCorridors();
+  this.placeItemsAndCharacters();
+  this.render();
+};
+
 // Заполнить карту стенами
 Game.prototype.generateEmptyMap = function () {
   for (let y = 0; y < this.HEIGHT; y++) {
@@ -142,9 +149,36 @@ Game.prototype.placeItemsAndCharacters = function () {
   }
 };
 
-Game.prototype.init = function () {
-  this.generateEmptyMap();
-  this.placeRoomsAndCorridors();
-  this.placeItemsAndCharacters();
-  this.render();
+// Отрисовка карты и объектов
+Game.prototype.render = function () {
+  let $field = $(".field");
+  $field.empty();
+
+  for (let y = 0; y < this.HEIGHT; y++) {
+    for (let x = 0; x < this.WIDTH; x++) {
+      let $tile = $('<div class="tile"></div>');
+
+      $tile.css({
+        left: x * this.TILE_SIZE + "px",
+        top: y * this.TILE_SIZE + "px",
+        width: this.TILE_SIZE + "px",
+        height: this.TILE_SIZE + "px",
+        position: "absolute",
+      });
+
+      let tileType = this.map[y][x];
+      if (tileType === "W") {
+        $tile.addClass("tileW"); // стена
+      } else if (tileType === "E") {
+        $tile.addClass("tile-"); // пол
+      }
+
+      $field.append($tile);
+    }
+  }
+};
+
+//функция для случайного числа
+Game.prototype.getRandomInt = function (min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
