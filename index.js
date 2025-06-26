@@ -21,6 +21,7 @@ Game.prototype.restartLevel = function () {
   this.placeRoomsAndCorridors();
   this.placeItemsAndCharacters();
   this.render();
+  this.gamePaused = false;
 };
 
 Game.prototype.init = function () {
@@ -30,11 +31,13 @@ Game.prototype.init = function () {
   this.render();
   this.bindEvents();
   this.startEnemyAI();
+  this.gamePaused = false;
 };
 
 Game.prototype.startEnemyAI = function () {
   const self = this;
   setInterval(function () {
+    if (self.gamePaused) return;
     if (self.hero.health > 0) {
       self.enemyTurn();
       self.render();
@@ -263,6 +266,7 @@ Game.prototype.canEnemyMoveTo = function (x, y) {
 Game.prototype.bindEvents = function () {
   var self = this;
   $(document).on("keydown", function (e) {
+    if (self.gamePaused) return;
     var code = e.keyCode;
     if (code === 87) self.moveHero(0, -1);
     else if (code === 65) self.moveHero(-1, 0);
@@ -330,7 +334,7 @@ Game.prototype.attackNearbyEnemies = function () {
 
   if (attacked) {
     this.render();
-    this.checkVictory(); // ⬅️ Добавить сюда
+    this.checkVictory();
   }
 };
 
@@ -383,12 +387,22 @@ Game.prototype.checkVictory = function () {
       '<div class="win-message">Уровень пройден! Нажмите Enter</div>'
     );
     $(".field").append($msg);
+    this.gamePaused = true;
 
     const self = this;
-    $(document).one("keydown", function (e) {
-      if (e.keyCode === 13) {
+
+    $(document).off("keydown.restart");
+
+    $(document).on("keydown.restart", function (e) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        console.log("ENTER pressed -> restarting level");
+
         $msg.remove();
         self.restartLevel();
+
+        self.gamePaused = false;
+
+        $(document).off("keydown.restart");
       }
     });
   }
