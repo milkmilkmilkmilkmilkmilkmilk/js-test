@@ -10,6 +10,19 @@ function Game() {
   this.potions = [];
 }
 
+Game.prototype.restartLevel = function () {
+  this.map = [];
+  this.enemies = [];
+  this.swords = [];
+  this.potions = [];
+  this.hero = null;
+
+  this.generateEmptyMap();
+  this.placeRoomsAndCorridors();
+  this.placeItemsAndCharacters();
+  this.render();
+};
+
 Game.prototype.init = function () {
   this.generateEmptyMap();
   this.placeRoomsAndCorridors();
@@ -270,6 +283,25 @@ Game.prototype.moveHero = function (dx, dy) {
 
   this.hero.x = newX;
   this.hero.y = newY;
+
+  for (let i = 0; i < this.swords.length; i++) {
+    let sword = this.swords[i];
+    if (sword.x === newX && sword.y === newY) {
+      this.hero.attack += 10;
+      this.swords.splice(i, 1);
+      break;
+    }
+  }
+
+  for (let i = 0; i < this.potions.length; i++) {
+    let potion = this.potions[i];
+    if (potion.x === newX && potion.y === newY) {
+      this.hero.health += 20;
+      if (this.hero.health > 100) this.hero.health = 100;
+      this.potions.splice(i, 1);
+      break;
+    }
+  }
   this.render();
 };
 
@@ -294,6 +326,11 @@ Game.prototype.attackNearbyEnemies = function () {
 
   if (attacked) {
     this.render();
+  }
+
+  if (attacked) {
+    this.render();
+    this.checkVictory(); // ⬅️ Добавить сюда
   }
 };
 
@@ -333,5 +370,26 @@ Game.prototype.enemyTurn = function () {
       enemy.x = newX;
       enemy.y = newY;
     }
+  }
+  this.checkVictory();
+};
+
+// Новый уровень
+
+Game.prototype.checkVictory = function () {
+  let allDead = this.enemies.every((e) => e.health <= 0);
+  if (allDead) {
+    const $msg = $(
+      '<div class="win-message">Уровень пройден! Нажмите Enter</div>'
+    );
+    $(".field").append($msg);
+
+    const self = this;
+    $(document).one("keydown", function (e) {
+      if (e.keyCode === 13) {
+        $msg.remove();
+        self.restartLevel();
+      }
+    });
   }
 };
