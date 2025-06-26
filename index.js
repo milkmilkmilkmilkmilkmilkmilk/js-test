@@ -172,7 +172,41 @@ Game.prototype.render = function () {
       } else if (tileType === "E") {
         $tile.addClass("tile-"); // пол
       }
+      // Герой
+      if (this.hero && this.hero.x === x && this.hero.y === y) {
+        $tile.addClass("tileP");
+        let $hp = $('<div class="health"></div>').css(
+          "width",
+          this.hero.health + "%"
+        );
+        $tile.append($hp);
+      }
 
+      // Враги
+      for (let enemy of this.enemies) {
+        if (enemy.x === x && enemy.y === y && enemy.health > 0) {
+          $tile.addClass("tileE");
+          let $hp = $('<div class="health"></div>').css(
+            "width",
+            enemy.health + "%"
+          );
+          $tile.append($hp);
+        }
+      }
+
+      // Мечи
+      for (let sword of this.swords) {
+        if (sword.x === x && sword.y === y) {
+          $tile.addClass("tileSW");
+        }
+      }
+
+      // Зелья
+      for (let potion of this.potions) {
+        if (potion.x === x && potion.y === y) {
+          $tile.addClass("tileHP");
+        }
+      }
       $field.append($tile);
     }
   }
